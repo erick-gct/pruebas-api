@@ -1,8 +1,31 @@
+'use client';
 import Image from "next/image";
 import PokemonViewer from "./components/PokemonViewer";
 import WeatherViewer from "./components/WeatherViewer";
 
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { auth } from "../lib/firebase";
+
 export default function Home() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setLoading(false);
+      } else {
+        router.push("/login");
+      }
+    });
+
+    return () => unsub();
+  }, [router]);
+
+  if (loading) return <p className="text-center mt-10">Cargando...</p>;
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
